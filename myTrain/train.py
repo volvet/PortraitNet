@@ -767,11 +767,12 @@ def main(args):
             }, is_best, exp_args.model_root)
         
 if __name__ == '__main__':
+    cur_path = os.path.split(os.path.realpath(__file__))[0]
     parser = argparse.ArgumentParser(description='Training code')
     parser.add_argument('--model', default='PortraitNet', type=str, 
                         help='<model> should in [PortraitNet, ENet, BiSeNet]')
     parser.add_argument('--config_path', 
-                        default='/home/dongx12/PortraitNet/config/model_mobilenetv2_without_auxiliary_losses.yaml', 
+                        default=cur_path + '/../config/model_mobilenetv2_without_auxiliary_losses.yaml',
                         type=str, help='the config path of the model')
     
     parser.add_argument('--workers', default=4, type=int, help='number of data loading workers')

@@ -3,6 +3,7 @@ tool/
 .gitignore
 myTest/result.mp4
 config/test_config.ipynb
+__pycache__
 
 
 
