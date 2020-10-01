@@ -4,6 +4,8 @@ tool/
 myTest/result.mp4
 config/test_config.ipynb
 __pycache__
+# Dataset
+EG1800
 
 
 

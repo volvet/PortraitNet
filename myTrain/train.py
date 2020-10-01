@@ -171,7 +171,7 @@ def test(dataLoader, netmodel, optimizer, epoch, logger, exp_args):
         else:
             output_mask = netmodel(input_var)
             loss_mask = loss_Softmax(output_mask, mask_var)
-            losses_mask.update(loss_mask.data[0], input.size(0))
+            losses_mask.update(loss_mask.data.item(), input.size(0))
             loss = loss_mask
             
             if exp_args.stability == True:
@@ -195,7 +195,7 @@ def test(dataLoader, netmodel, optimizer, epoch, logger, exp_args):
         
         # total loss
         loss = loss_mask
-        losses.update(loss.data[0], input.size(0))
+        losses.update(loss.data.item(), input.size(0))
         
         prob = softmax(output_mask)[0,1,:,:]
         pred = prob.data.cpu().numpy()
@@ -372,11 +372,12 @@ def train(dataLoader, netmodel, optimizer, epoch, logger, exp_args):
         if exp_args.addEdge == True:
             output_mask, output_edge = netmodel(input_var)
             loss_mask = loss_Softmax(output_mask, mask_var)
-            losses_mask.update(loss_mask.data[0], input.size(0))
+            losses_mask.update(loss_mask.data.item(), input.size(0))
             
             # loss_edge = loss_l2(output_edge, edge_var) * exp_args.edgeRatio
             loss_edge = loss_Focalloss(output_edge, edge_var) * exp_args.edgeRatio
-            losses_edge.update(loss_edge.data[0], input.size(0))
+
+            losses_edge.update(loss_edge.data.item(), input.size(0))
             
             # total loss
             loss = loss_mask + loss_edge
@@ -384,11 +385,11 @@ def train(dataLoader, netmodel, optimizer, epoch, logger, exp_args):
             if exp_args.stability == True:
                 output_mask_ori, output_edge_ori = netmodel(input_ori_var)
                 loss_mask_ori = loss_Softmax(output_mask_ori, mask_var)
-                losses_mask_ori.update(loss_mask_ori.data[0], input.size(0))
+                losses_mask_ori.update(loss_mask_ori.data.item(), input.size(0))
                 
                 # loss_edge_ori = loss_l2(output_edge_ori, edge_var) * exp_args.edgeRatio
                 loss_edge_ori = loss_Focalloss(output_edge_ori, edge_var) * exp_args.edgeRatio
-                losses_edge_ori.update(loss_edge_ori.data[0], input.size(0))
+                losses_edge_ori.update(loss_edge_ori.data.item(), input.size(0))
                 
                 # in our experiments, kl loss is better than l2 loss
                 if exp_args.use_kl == False:
@@ -408,8 +409,8 @@ def train(dataLoader, netmodel, optimizer, epoch, logger, exp_args):
                                                   Variable(output_edge_ori.data, requires_grad = False), 
                                                   exp_args.temperature) * exp_args.alpha * exp_args.edgeRatio
                 
-                losses_stability_mask.update(loss_stability_mask.data[0], input.size(0))
-                losses_stability_edge.update(loss_stability_edge.data[0], input.size(0))
+                losses_stability_mask.update(loss_stability_mask.data.item(), input.size(0))
+                losses_stability_edge.update(loss_stability_edge.data.item(), input.size(0))
                 
                 # total loss
                 # loss = loss_mask + loss_mask_ori + loss_edge + loss_edge_ori + loss_stability_mask + loss_stability_edge
@@ -417,14 +418,14 @@ def train(dataLoader, netmodel, optimizer, epoch, logger, exp_args):
         else:
             output_mask = netmodel(input_var)
             loss_mask = loss_Softmax(output_mask, mask_var)
-            losses_mask.update(loss_mask.data[0], input.size(0))
+            losses_mask.update(loss_mask.data.item(), input.size(0))
             # total loss: only include mask loss
             loss = loss_mask
             
             if exp_args.stability == True:
                 output_mask_ori = netmodel(input_ori_var)
                 loss_mask_ori = loss_Softmax(output_mask_ori, mask_var)
-                losses_mask_ori.update(loss_mask_ori.data[0], input.size(0))
+                losses_mask_ori.update(loss_mask_ori.data.item(), input.size(0))
                 if exp_args.use_kl == False:
                     # consistency constraint loss: L2 distance 
                     loss_stability_mask = loss_l2(output_mask, 
@@ -435,12 +436,12 @@ def train(dataLoader, netmodel, optimizer, epoch, logger, exp_args):
                     loss_stability_mask = loss_KL(output_mask, 
                                                   Variable(output_mask_ori.data, requires_grad = False), 
                                                   exp_args.temperature) * exp_args.alpha
-                losses_stability_mask.update(loss_stability_mask.data[0], input.size(0))
+                losses_stability_mask.update(loss_stability_mask.data.item(), input.size(0))
                 
                 # total loss
                 loss = loss_mask + loss_mask_ori + loss_stability_mask
                 
-        losses.update(loss.data[0], input.size(0))
+        losses.update(loss.data.item(), input.size(0))
         
         # compute gradient and do Adam step
         optimizer.zero_grad()
@@ -608,8 +609,10 @@ def main(args):
     exp_args.task = cf['task'] # only support 'seg' now
     exp_args.datasetlist = cf['datasetlist']
     exp_args.model_root = cf['model_root'] 
-    exp_args.data_root = cf['data_root']
-    exp_args.file_root = cf['file_root']
+    #exp_args.data_root = cf['data_root']
+    #exp_args.file_root = cf['file_root']
+    exp_args.data_root = args.data_root
+    exp_args.file_root = args.file_root
 
     # set log path
     logs_path = os.path.join(exp_args.model_root, 'log/')
@@ -713,9 +716,9 @@ def main(args):
     
     if exp_args.init == True:
         pretrained_state_dict = torch.load('pretrained_mobilenetv2_base.pth')
-        pretrained_state_dict_keys = pretrained_state_dict.keys()
+        pretrained_state_dict_keys = list(pretrained_state_dict.keys())
         netmodel_state_dict = netmodel.state_dict()
-        netmodel_state_dict_keys = netmodel.state_dict().keys()
+        netmodel_state_dict_keys = list(netmodel.state_dict().keys())
         print ("pretrain keys: ", len(pretrained_state_dict_keys))
         print ("netmodel keys: ", len(netmodel_state_dict_keys))
         weights_load = {}
@@ -774,8 +777,14 @@ if __name__ == '__main__':
     parser.add_argument('--config_path', 
                         default=cur_path + '/../config/model_mobilenetv2_without_auxiliary_losses.yaml',
                         type=str, help='the config path of the model')
+    parser.add_argument('--file_root',
+                        default=cur_path + '/../data/select_data/',
+                        type=str, help='the file root'),
+    parser.add_argument('--data_root',
+                        default=cur_path + '/../data/',
+                        type=str, help='the data root')
     
-    parser.add_argument('--workers', default=4, type=int, help='number of data loading workers')
+    parser.add_argument('--workers', default=0, type=int, help='number of data loading workers')
     parser.add_argument('--batchsize', default=64, type=int, help='mini-batch size')
     parser.add_argument('--lr', default=0.001, type=float, help='initial learning rate')
     parser.add_argument('--momentum', default=0.9, type=float, help='momentum')
