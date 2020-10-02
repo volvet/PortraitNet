@@ -608,9 +608,10 @@ def main(args):
     exp_args.istrain = cf['istrain'] # set the mode 
     exp_args.task = cf['task'] # only support 'seg' now
     exp_args.datasetlist = cf['datasetlist']
-    exp_args.model_root = cf['model_root'] 
+    #exp_args.model_root = cf['model_root']
     #exp_args.data_root = cf['data_root']
     #exp_args.file_root = cf['file_root']
+    exp_args.model_root = args.model_root
     exp_args.data_root = args.data_root
     exp_args.file_root = args.file_root
 
@@ -783,6 +784,9 @@ if __name__ == '__main__':
     parser.add_argument('--data_root',
                         default=cur_path + '/../data/',
                         type=str, help='the data root')
+    parser.add_argument('--model_root',
+                        default=cur_path + '/../modelroot/',
+                        type=str, help='the model root')
     
     parser.add_argument('--workers', default=0, type=int, help='number of data loading workers')
     parser.add_argument('--batchsize', default=64, type=int, help='mini-batch size')
