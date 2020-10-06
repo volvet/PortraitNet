@@ -3,6 +3,11 @@ tool/
 .gitignore
 myTest/result.mp4
 config/test_config.ipynb
+__pycache__
+modelroot
+# Dataset
+EG1800
+Supervisely_face
 
 
 
