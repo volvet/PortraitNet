@@ -591,7 +591,7 @@ def save_checkpoint(state, is_best, root, filename='checkpoint.pth.tar'):
     if is_best:
         shutil.copyfile(root+filename, root+'model_best.pth.tar')
         
-def model_summary(args, exp_args)：
+def model_summary(args, exp_args):
     if args.model is 'PortraitNet':
         import model_mobilenetv2_seg_small as modellib
         netmodel = modellib.MobileNetV2(n_class=2,
