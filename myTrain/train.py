@@ -25,6 +25,7 @@ import datasets
 from datasets import Human
 from data_aug import Normalize_Img, Anti_Normalize_Img
 from focal_loss import FocalLoss
+from model_summary import summary
 
 from logger import Logger
 # os.environ["CUDA_VISIBLE_DEVICES"] = "0"
@@ -590,6 +591,21 @@ def save_checkpoint(state, is_best, root, filename='checkpoint.pth.tar'):
     if is_best:
         shutil.copyfile(root+filename, root+'model_best.pth.tar')
         
+def model_summary(args, exp_args)：
+    if args.model is 'PortraitNet':
+        import model_mobilenetv2_seg_small as modellib
+        netmodel = modellib.MobileNetV2(n_class=2,
+                                        useUpsample=exp_args.useUpsample,
+                                        useDeconvGroup=exp_args.useDeconvGroup,
+                                        addEdge=exp_args.addEdge,
+                                        channelRatio=1.0,
+                                        minChannel=16,
+                                        weightInit=True,
+                                        video=exp_args.video).cuda()
+        summary(netmodel, (3, exp_args.input_width, exp_args.input_height))
+
+
+
 
 def main(args):
     cudnn.benchmark = True
@@ -663,6 +679,11 @@ def main(args):
     # if exp_args.useDeconvGroup==True, set groups=input_channel in nn.ConvTranspose2d
     exp_args.useDeconvGroup = cf['useDeconvGroup'] 
     
+    # model summary
+    if args.summary:
+      model_summary(args, exp_args);
+      return
+
     # set training dataset
     exp_args.istrain = True
     dataset_train = Human(exp_args)
@@ -796,6 +817,7 @@ if __name__ == '__main__':
     parser.add_argument('--printfreq', default=100, type=int, help='print frequency')
     parser.add_argument('--savefreq', default=1000, type=int, help='save frequency')
     parser.add_argument('--resume', default=False, type=bool, help='resume')
+    parser.add_argument('--summary', default=False, type=bool, help="model summary")
     args = parser.parse_args()
     
     main(args)
