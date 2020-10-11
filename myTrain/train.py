@@ -132,19 +132,19 @@ def test(dataLoader, netmodel, optimizer, epoch, logger, exp_args):
         if exp_args.addEdge == True:
             output_mask, output_edge = netmodel(input_var)
             loss_mask = loss_Softmax(output_mask, mask_var)
-            losses_mask.update(loss_mask.data[0], input.size(0))
+            losses_mask.update(loss_mask.data.item(), input.size(0))
             # loss_edge = loss_l2(output_edge, edge_var) * exp_args.edgeRatio
             loss_edge = loss_Focalloss(output_edge, edge_var) * exp_args.edgeRatio
-            losses_edge.update(loss_edge.data[0], input.size(0))
+            losses_edge.update(loss_edge.data.item(), input.size(0))
             loss = loss_mask + loss_edge
             
             if exp_args.stability == True:
                 output_mask_ori, output_edge_ori = netmodel(input_ori_var)
                 loss_mask_ori = loss_Softmax(output_mask_ori, mask_var)
-                losses_mask_ori.update(loss_mask_ori.data[0], input.size(0))
+                losses_mask_ori.update(loss_mask_ori.data.item(), input.size(0))
                 # loss_edge_ori = loss_l2(output_edge_ori, edge_var) * exp_args.edgeRatio
                 loss_edge_ori = loss_Focalloss(output_edge_ori, edge_var) * exp_args.edgeRatio
-                losses_edge_ori.update(loss_edge_ori.data[0], input.size(0))
+                losses_edge_ori.update(loss_edge_ori.data.item(), input.size(0))
                 
                 if exp_args.use_kl == False:
                     # consistency constraint loss: L2 distance 
@@ -163,8 +163,8 @@ def test(dataLoader, netmodel, optimizer, epoch, logger, exp_args):
                                                   Variable(output_edge_ori.data, requires_grad = False), 
                                                   exp_args.temperature) * exp_args.alpha * exp_args.edgeRatio
                     
-                losses_stability_mask.update(loss_stability_mask.data[0], input.size(0))
-                losses_stability_edge.update(loss_stability_edge.data[0], input.size(0))
+                losses_stability_mask.update(loss_stability_mask.data.item(), input.size(0))
+                losses_stability_edge.update(loss_stability_edge.data.item(), input.size(0))
                 
                 # total loss
                 # loss = loss_mask + loss_mask_ori + loss_edge + loss_edge_ori + loss_stability_mask + loss_stability_edge
@@ -797,7 +797,7 @@ if __name__ == '__main__':
     parser.add_argument('--model', default='PortraitNet', type=str, 
                         help='<model> should in [PortraitNet, ENet, BiSeNet]')
     parser.add_argument('--config_path', 
-                        default=cur_path + '/../config/model_mobilenetv2_without_auxiliary_losses.yaml',
+                        default=cur_path + '/../config/model_mobilenetv2_with_two_auxiliary_losses.yaml',
                         type=str, help='the config path of the model')
     parser.add_argument('--file_root',
                         default=cur_path + '/../data/select_data/',
@@ -810,7 +810,7 @@ if __name__ == '__main__':
                         type=str, help='the model root')
     
     parser.add_argument('--workers', default=0, type=int, help='number of data loading workers')
-    parser.add_argument('--batchsize', default=64, type=int, help='mini-batch size')
+    parser.add_argument('--batchsize', default=32, type=int, help='mini-batch size')
     parser.add_argument('--lr', default=0.001, type=float, help='initial learning rate')
     parser.add_argument('--momentum', default=0.9, type=float, help='momentum')
     parser.add_argument('--weightdecay', default=5e-4, type=float, help='weight decay')
