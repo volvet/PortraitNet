@@ -28,7 +28,7 @@ img_mean: [103.94, 116.78, 123.68] # BGR order, image mean
 img_val: [0.017, 0.017, 0.017] # BGR order, image val
 
 init: False # whether to use pretian model to init portraitnet
-resume: False # whether to continue training
+resume: True # whether to continue training
 
 useUpsample: False # if exp_args.useUpsample==True, use nn.Upsample in decoder, else use nn.ConvTranspose2d
 useDeconvGroup: False # if exp_args.useDeconvGroup==True, set groups=input_channel in nn.ConvTranspose2d
