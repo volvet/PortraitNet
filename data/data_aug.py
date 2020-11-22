@@ -116,7 +116,7 @@ def aug_matrix(img_w, img_h, bbox, w, h, angle_range=(-45, 45), scale_range=(0.5
         [0, sy, 0] (dot) [sin(theta),  cos(theta), 0] (dot) [0, 1, dy] (dot) [y]
         [0,  0, 1]       [         0,           0, 1]       [0, 0,  1]       [1]
     '''
-    ratio = 1.0*(bbox[2]-bbox[0])*(bbox[3]-bbox[1])/(img_w*img_h)
+    #ratio = 1.0*(bbox[2]-bbox[0])*(bbox[3]-bbox[1])/(img_w*img_h)
     x_offset = (random.random()-0.5) * 2 * offset
     y_offset = (random.random()-0.5) * 2 * offset
     dx = (w-(bbox[2]+bbox[0]))/2.0 
@@ -132,6 +132,9 @@ def aug_matrix(img_w, img_h, bbox, w, h, angle_range=(-45, 45), scale_range=(0.5
     alpha = scale * math.cos(angle/180.0*math.pi)
     beta = scale * math.sin(angle/180.0*math.pi)
 
+    '''
+    rotate -angle around point(centerx, centery)
+    '''
     centerx = w/2.0 + x_offset
     centery = h/2.0 + y_offset
     H = np.array([[alpha, beta, (1-alpha)*centerx-beta*centery], 
