@@ -26,6 +26,7 @@ from datasets import Human
 from data_aug import Normalize_Img, Anti_Normalize_Img
 from focal_loss import FocalLoss
 from model_summary import summary
+from model_onnx import export_to_onnx
 
 from logger import Logger
 # os.environ["CUDA_VISIBLE_DEVICES"] = "0"
@@ -592,7 +593,7 @@ def save_checkpoint(state, is_best, root, filename='checkpoint.pth.tar'):
         shutil.copyfile(root+filename, root+'model_best.pth.tar')
         
 def model_summary(args, exp_args):
-    if args.model is 'PortraitNet':
+    if args.model == 'PortraitNet':
         import model_mobilenetv2_seg_small as modellib
         netmodel = modellib.MobileNetV2(n_class=2,
                                         useUpsample=exp_args.useUpsample,
@@ -603,9 +604,6 @@ def model_summary(args, exp_args):
                                         weightInit=True,
                                         video=exp_args.video).cuda()
         summary(netmodel, (3, exp_args.input_width, exp_args.input_height))
-
-
-
 
 def main(args):
     cudnn.benchmark = True
@@ -684,6 +682,12 @@ def main(args):
       model_summary(args, exp_args);
       return
 
+    if args.export_onnx:
+      print('Exporting model to onnx format')
+      export_to_onnx(args, exp_args)
+      print('Done')
+      return
+
     # set training dataset
     exp_args.istrain = True
     dataset_train = Human(exp_args)
@@ -731,6 +735,7 @@ def main(args):
         netmodel = modellib.ENet(n_class=2).cuda()
         print ("finish load ENet ...")
         
+
     # optimizer = torch.optim.SGD(netmodel.parameters(), args.lr, momentum=args.momentum, weight_decay=args.weightdecay)  
     params, multiple = get_parameters(netmodel, args, useDeconvGroup=exp_args.useDeconvGroup)
     # optimizer = torch.optim.SGD(params, args.lr, momentum=args.momentum, weight_decay=args.weightdecay) 
@@ -818,6 +823,7 @@ if __name__ == '__main__':
     parser.add_argument('--savefreq', default=1000, type=int, help='save frequency')
     parser.add_argument('--resume', default=False, type=bool, help='resume')
     parser.add_argument('--summary', default=False, type=bool, help="model summary")
+    parser.add_argument('--export_onnx', default=False, type=bool, help='onnx export')
     args = parser.parse_args()
-    
+
     main(args)
