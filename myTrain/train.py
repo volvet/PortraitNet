@@ -26,7 +26,8 @@ from datasets import Human
 from data_aug import Normalize_Img, Anti_Normalize_Img
 from focal_loss import FocalLoss
 from model_summary import summary
-from model_onnx import export_to_onnx
+from model_convert import export_to_onnx
+from model_convert import export_to_coreml
 
 from logger import Logger
 # os.environ["CUDA_VISIBLE_DEVICES"] = "0"
@@ -687,6 +688,12 @@ def main(args):
       export_to_onnx(args, exp_args)
       print('Done')
       return
+    
+    if args.export_coreml:
+      print('Exporting model to coreml format')
+      export_to_coreml(args, exp_args)
+      print('Done')
+      return
 
     # set training dataset
     exp_args.istrain = True
@@ -824,6 +831,7 @@ if __name__ == '__main__':
     parser.add_argument('--resume', default=False, type=bool, help='resume')
     parser.add_argument('--summary', default=False, type=bool, help="model summary")
     parser.add_argument('--export_onnx', default=False, type=bool, help='onnx export')
+    parser.add_argument('--export_coreml', default=False, type=bool, help='coreml export')
     args = parser.parse_args()
 
     main(args)
