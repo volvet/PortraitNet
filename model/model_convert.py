@@ -57,7 +57,7 @@ def export_to_coreml(args, exp_args):
     netmodel = netmodel.eval()
     traced_model = torch.jit.trace(netmodel, dummy_input)
     mlmodel = ct.convert(traced_model,
-                         inputs=[ct.TensorType(name="input", shape=dummy_input.shape)])
+                         inputs=[ct.TensorType(name="captured_input", shape=dummy_input.shape)])
     mlmodel.save(coreml_path) 
 
 
