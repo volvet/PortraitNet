@@ -25,7 +25,7 @@ def export_to_onnx(args, exp_args):
     onnx_path = '/'.join((exp_args.model_root, 'PortaitNet.onnx'))
     state_dict = torch.load(weights_path)
     netmodel.load_state_dict(state_dict['state_dict'])
-    batch_size = args.batchsize
+    batch_size = 1 #args.batchsize
     channels = 3
     input_width = exp_args.input_width
     input_height = exp_args.input_height
@@ -49,7 +49,7 @@ def export_to_coreml(args, exp_args):
     coreml_path = '/'.join((exp_args.model_root, 'PortaitNet.mlmodel'))
     state_dict = torch.load(weights_path)
     netmodel.load_state_dict(state_dict['state_dict'])
-    batch_size = args.batchsize
+    batch_size = 1 #args.batchsize
     channels = 3
     input_width = exp_args.input_width
     input_height = exp_args.input_height
